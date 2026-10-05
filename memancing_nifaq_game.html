@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MEMANCING Nifaq - Pendidikan Islam</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Fredoka & Bubblegum Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background-color: #0c4a6e;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        .font-bubble {
+            font-family: 'Bubblegum Sans', cursive;
+        }
+        /* Custom Animations */
+        @keyframes wave {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+        }
+        .animate-wave {
+            animation: wave 4s ease-in-out infinite;
+        }
+        @keyframes pulse-light {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
+        }
+        .animate-pulse-light {
+            animation: pulse-light 2s infinite;
+        }
+        /* Water ripples overlay */
+        .water-overlay {
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.15) 100%);
+        }
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+        }
+        /* Button Glow */
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+            transition: all 0.2s ease;
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 22px rgba(59, 130, 246, 0.9);
+        }
+        .btn-glow:active {
+            transform: translateY(1px) scale(0.98);
+        }
+    </style>
+</head>
+<body class="relative flex flex-col justify-between h-screen w-screen overflow-hidden select-none">
+
+    <!-- TOP BAR / HEADER -->
+    <header class="relative z-20 w-full px-3 py-2 md:px-6 md:py-3 flex justify-between items-center bg-gradient-to-b from-sky-900/90 to-transparent">
+        <!-- Title & Stats -->
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <div class="bg-amber-400 text-amber-950 px-3 py-1 md:px-4 md:py-2 rounded-2xl font-bold text-sm md:text-xl border-2 border-amber-200 shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-fish text-amber-800"></i>
+                <span class="hidden sm:inline">MEMANCING</span> NIFAQ
+            </div>
+            <div class="bg-sky-800/80 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-2xl font-semibold text-xs md:text-base border border-sky-400/30 flex items-center gap-2">
+                <span>Soalan:</span>
+                <span id="question-tracker" class="text-yellow-300 font-extrabold text-sm md:text-lg">1/10</span>
+            </div>
+        </div>
+
+        <!-- Lives & Score -->
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <!-- Lives -->
+            <div class="bg-red-950/60 border border-red-500/40 px-3 py-1 md:px-4 md:py-1.5 rounded-2xl flex items-center gap-1.5">
+                <span class="text-xs text-red-200 font-semibold hidden md:inline">Nyawa:</span>
+                <div id="lives-container" class="flex gap-1 text-red-500 text-base md:text-2xl drop-shadow">
+                    <i class="fa-solid fa-heart animate-bounce"></i>
+                    <i class="fa-solid fa-heart animate-bounce" style="animation-delay: 0.1s"></i>
+                    <i class="fa-solid fa-heart animate-bounce" style="animation-delay: 0.2s"></i>
+                </div>
+            </div>
+
+            <!-- Score -->
+            <div class="bg-emerald-900/80 border border-emerald-400/40 px-3 py-1 md:px-5 md:py-1.5 rounded-2xl flex items-center gap-2">
+                <i class="fa-solid fa-star text-yellow-400 text-sm md:text-xl"></i>
+                <div class="text-right">
+                    <div class="text-[10px] text-emerald-200 leading-none uppercase tracking-wider hidden md:block">Skor</div>
+                    <div id="score-display" class="text-yellow-300 font-black text-sm md:text-2xl leading-none">0</div>
+                </div>
+            </div>
+
+            <!-- Audio Toggle -->
+            <button id="sound-btn" onclick="toggleSound()" class="bg-sky-700/80 hover:bg-sky-600 text-white p-2 md:p-2.5 rounded-2xl border border-sky-400/40 transition">
+                <i id="sound-icon" class="fa-solid fa-volume-high text-sm md:text-lg"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- QUESTION BOARD (ALWAYS VISIBLE & CLEAR) -->
+    <div class="relative z-20 w-full max-w-4xl mx-auto px-3 md:px-6 mt-1">
+        <div class="glass-card rounded-2xl md:rounded-3xl p-3 md:p-5 text-center relative border-4 border-sky-300 shadow-2xl">
+            <!-- Fishing Fisherman Decorative Silhouette Header -->
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-sky-600 text-white px-4 py-1 rounded-full border-2 border-white text-xs md:text-sm font-bold shadow-md tracking-wide uppercase flex items-center gap-2">
+                <i class="fa-solid fa-hook"></i> SOALAN PENDIDIKAN ISLAM
+            </div>
+            
+            <h2 id="question-text" class="text-gray-900 font-bold text-base sm:text-xl md:text-2xl lg:text-3xl leading-relaxed md:leading-snug mt-2">
+                Memuatkan soalan...
+            </h2>
+        </div>
+    </div>
+
+    <!-- CANVAS GAME AREA -->
+    <div class="relative flex-1 w-full h-full overflow-hidden mt-1">
+        <!-- Canvas for Pond, Water Effects, Rod, and Fish -->
+        <canvas id="gameCanvas" class="absolute inset-0 w-full h-full cursor-pointer"></canvas>
+
+        <!-- Dynamic Feedback Overlay (Pop-up alert when clicking fish) -->
+        <div id="feedback-banner" class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none transform scale-0 transition-transform duration-300 ease-out text-center">
+            <div id="feedback-card" class="px-8 py-4 rounded-3xl shadow-2xl border-4 text-2xl md:text-4xl font-extrabold tracking-wide uppercase flex items-center gap-3 justify-center">
+                <span id="feedback-icon"></span>
+                <span id="feedback-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT MODAL SCREEN -->
+    <div id="result-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-opacity duration-300">
+        <div class="glass-card max-w-lg w-full rounded-3xl p-6 md:p-8 text-center border-4 border-amber-300 shadow-2xl relative transform scale-95 transition-transform duration-300">
+            <!-- Decorative Badge -->
+            <div class="w-20 h-20 md:w-24 md:y-24 bg-gradient-to-tr from-amber-400 to-yellow-200 rounded-full border-4 border-white shadow-xl mx-auto -mt-16 flex items-center justify-center text-amber-800 text-3xl md:text-4xl">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800 mt-3 font-bubble">KEPUTUSAN PERMAINAN</h2>
+            <p id="result-title" class="text-sky-700 font-bold text-base md:text-lg mt-1">Mukmin Sejati - Bebas Nifaq!</p>
+
+            <!-- Stars Rating -->
+            <div id="stars-container" class="flex justify-center gap-2 my-4 text-3xl md:text-4xl text-amber-400 drop-shadow">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <!-- Score Summary Box -->
+            <div class="bg-sky-50 rounded-2xl p-4 my-4 border-2 border-sky-200 flex justify-around items-center">
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 uppercase font-bold">Skor Akhir</p>
+                    <p id="final-score" class="text-2xl md:text-3xl font-black text-emerald-600">0</p>
+                </div>
+                <div class="h-10 w-0.5 bg-sky-200"></div>
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 uppercase font-bold">Soalan Betul</p>
+                    <p id="final-correct" class="text-2xl md:text-3xl font-black text-sky-600">0 / 10</p>
+                </div>
+            </div>
+
+            <p id="result-message" class="text-gray-600 text-sm md:text-base font-medium mb-6">
+                Tahniah! Anda telah menguasai tajuk Nifaq dalam Pendidikan Islam.
+            </p>
+
+            <!-- Play Again Button -->
+            <button onclick="restartGame()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-lg md:text-xl border-b-4 border-teal-800 btn-glow flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i> MAIN SEMULA
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* ===================================================================
+           1. DATA SET: 10 QUESTIONS ON NIFAQ (PENDIDIKAN ISLAM)
+           =================================================================== */
+        const questionsData = [
+            {
+                q: "1. Apakah maksud nifaq?",
+                correct: "Menunjukkan sesuatu yang baik tetapi menyembunyikan perkara yang bertentangan dengannya",
+                wrongs: [
+                    "Bersikap jujur kepada semua orang",
+                    "Membantu orang yang memerlukan",
+                    "Rajin melakukan ibadah"
+                ]
+            },
+            {
+                q: "2. Apakah maksud Nifaq I‘tikad?",
+                correct: "Menyembunyikan kekufuran dalam hati tetapi menunjukkan dirinya sebagai orang Islam",
+                wrongs: [
+                    "Terlupa melakukan sesuatu",
+                    "Tidak membantu kawan",
+                    "Tidak hadir ke sekolah"
+                ]
+            },
+            {
+                q: "3. Apakah maksud Nifaq Amalan?",
+                correct: "Melakukan amalan yang menunjukkan sifat orang munafik",
+                wrongs: [
+                    "Tidak percaya kepada Allah",
+                    "Rajin membaca al-Quran",
+                    "Suka membantu ibu bapa"
+                ]
+            },
+            {
+                q: "4. Antara berikut, yang manakah contoh Nifaq I‘tikad?",
+                correct: "Seseorang mengaku Islam tetapi sebenarnya tidak beriman kepada Allah",
+                wrongs: [
+                    "Seseorang terlupa membawa buku",
+                    "Seseorang membantu rakannya",
+                    "Seseorang menjaga kebersihan"
+                ]
+            },
+            {
+                q: "5. Antara berikut, yang manakah contoh Nifaq Amalan?",
+                correct: "Berbohong ketika bercakap",
+                wrongs: [
+                    "Membaca al-Quran",
+                    "Menolong guru",
+                    "Menghormati ibu bapa"
+                ]
+            },
+            {
+                q: "6. Ali berjanji untuk membantu kawannya, tetapi dia sengaja tidak menunaikan janji. Apakah sifat ini?",
+                correct: "Nifaq Amalan",
+                wrongs: [
+                    "Nifaq I‘tikad",
+                    "Sifat rajin",
+                    "Sifat sabar"
+                ]
+            },
+            {
+                q: "7. Apakah contoh Nifaq Amalan ketika bercakap?",
+                correct: "Berbohong",
+                wrongs: [
+                    "Bercakap benar",
+                    "Memberi salam",
+                    "Berkata dengan sopan"
+                ]
+            },
+            {
+                q: "8. Mengapakah kita perlu menjauhi nifaq?",
+                correct: "Supaya menjadi orang yang jujur dan beriman",
+                wrongs: [
+                    "Supaya mendapat pujian manusia",
+                    "Supaya menjadi terkenal",
+                    "Supaya mendapat banyak hadiah"
+                ]
+            },
+            {
+                q: "9. Apakah perbezaan Nifaq I‘tikad dengan Nifaq Amalan?",
+                correct: "Nifaq I‘tikad berkaitan kepercayaan, manakala Nifaq Amalan berkaitan perbuatan",
+                wrongs: [
+                    "Kedua-duanya hanya berkaitan dengan pakaian",
+                    "Nifaq I‘tikad berkaitan makanan",
+                    "Nifaq Amalan berkaitan permainan"
+                ]
+            },
+            {
+                q: "10. Antara berikut, yang manakah cara menjauhi Nifaq Amalan?",
+                correct: "Bercakap benar dan menunaikan janji",
+                wrongs: [
+                    "Suka berbohong",
+                    "Tidak menepati janji",
+                    "Menipu kawan"
+                ]
+            }
+        ];
+
+        /* ===================================================================
+           2. AUDIO SYNTHESIS ENGINE (WEB AUDIO API - NO EXTERNAL ASSETS)
+           =================================================================== */
+        let audioEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'splash') {
+                // Water splash sound using noise buffer
+                const bufferSize = audioCtx.sampleRate * 0.3;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, now);
+                filter.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start(now);
+
+            } else if (type === 'correct') {
+                // Happy chord chime
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+                    gain.gain.setValueAtTime(0.3, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.4);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.4);
+                });
+
+            } else if (type === 'wrong') {
+                // Buzz / fail sound
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(80, now + 0.4);
+
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'win') {
+                // Victory fan fare
+                [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    gain.gain.setValueAtTime(0.3, now + idx * 0.12);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.5);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.12);
+                    osc.stop(now + idx * 0.12 + 0.5);
+                });
+            }
+        }
+
+        function toggleSound() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-sm md:text-lg';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-sm md:text-lg text-red-300';
+            }
+        }
+
+        /* ===================================================================
+           3. GAME STATE & CANVAS ENGINE
+           =================================================================== */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let lives = 3;
+        let correctAnswersCount = 0;
+        let isProcessingClick = false;
+
+        let fishes = [];
+        let particles = [];
+        let bubbles = [];
+        let weeds = [];
+
+        // Fishing Rod & Hook State
+        let rod = {
+            topX: 0,
+            topY: 0,
+            hookX: 0,
+            hookY: 0,
+            targetX: 0,
+            targetY: 0,
+            state: 'idle', // 'idle', 'dropping', 'pulling_up', 'sinking_dead'
+            activeFish: null,
+            speed: 12
+        };
+
+        // Fish Visual Palette Colors
+        const fishPalette = [
+            { body: '#f97316', stripe: '#ffffff', fin: '#ea580c' }, // Orange Clownfish
+            { body: '#06b6d4', stripe: '#fef08a', fin: '#0891b2' }, // Cyan Yellow
+            { body: '#a855f7', stripe: '#f472b6', fin: '#7e22ce' }, // Purple Pink
+            { body: '#eab308', stripe: '#38bdf8', fin: '#ca8a04' }  // Yellow Blue
+        ];
+
+        /* Resizing Canvas */
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            rod.topX = canvas.width / 2;
+            rod.topY = 10;
+            if (rod.state === 'idle') {
+                rod.hookX = rod.topX;
+                rod.hookY = 40;
+            }
+            initWeeds();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        /* Initialize Underwater Seaweeds & Background Bubbles */
+        function initWeeds() {
+            weeds = [];
+            const count = Math.floor(canvas.width / 80);
+            for (let i = 0; i < count; i++) {
+                weeds.push({
+                    x: (i * 80) + Math.random() * 40,
+                    height: 80 + Math.random() * 100,
+                    segments: 5,
+                    angleOffset: Math.random() * Math.PI * 2
+                });
+            }
+
+            bubbles = [];
+            for (let i = 0; i < 20; i++) {
+                bubbles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: 2 + Math.random() * 4,
+                    speed: 0.3 + Math.random() * 0.7,
+                    wobble: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        /* Create Water Splash Effect */
+        function createSplash(x, y) {
+            playSound('splash');
+            for (let i = 0; i < 18; i++) {
+                const angle = Math.random() * Math.PI - Math.PI; // Upwards spread
+                const speed = 2 + Math.random() * 6;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    radius: 3 + Math.random() * 4,
+                    alpha: 1,
+                    color: '#e0f2fe'
+                });
+            }
+        }
+
+        /* Fish Constructor */
+        class Fish {
+            constructor(text, isCorrect, slotIdx) {
+                this.text = text;
+                this.isCorrect = isCorrect;
+                
+                // Dimensions & Hitbox
+                this.width = Math.max(140, Math.min(260, text.length * 7.5 + 40));
+                this.height = 65;
+
+                // Vertical distribution slots so fish don't overlap too much
+                const marginY = 80;
+                const availableHeight = canvas.height - marginY - 60;
+                const slotHeight = availableHeight / 4;
+                this.y = marginY + (slotIdx * slotHeight) + Math.random() * 20;
+
+                // Horizontal speed & direction
+                // PENTING: vx > 0 -> Berenang ke kanan, Face Right (facingRight = true)
+                //          vx < 0 -> Berenang ke kiri, Face Left (facingRight = false)
+                this.vx = (Math.random() > 0.5 ? 1 : -1) * (1.0 + Math.random() * 0.8); // Gentle natural speed
+                this.facingRight = this.vx > 0;
+
+                if (this.facingRight) {
+                    this.x = -this.width - (Math.random() * 100);
+                } else {
+                    this.x = canvas.width + Math.random() * 100;
+                }
+
+                // Visual styling
+                this.colors = fishPalette[slotIdx % fishPalette.length];
+                this.tailAngle = 0;
+                this.tailSpeed = 0.08 + Math.random() * 0.04;
+                this.status = 'swimming'; // 'swimming', 'hooked', 'dead'
+                this.rotation = 0;
+            }
+
+            update() {
+                if (this.status === 'swimming') {
+                    this.x += this.vx;
+                    this.tailAngle += this.tailSpeed;
+
+                    // Reverse direction if reaching edge and keep facing right way
+                    if (this.vx > 0 && this.x > canvas.width + 40) {
+                        this.vx = -Math.abs(this.vx);
+                        this.facingRight = false;
+                    } else if (this.vx < 0 && this.x < -this.width - 40) {
+                        this.vx = Math.abs(this.vx);
+                        this.facingRight = true;
+                    }
+                } else if (this.status === 'hooked') {
+                    // Attached to hook
+                    this.x = rod.hookX - (this.facingRight ? this.width * 0.3 : this.width * 0.3);
+                    this.y = rod.hookY + 15;
+                    this.rotation = this.facingRight ? Math.PI / 4 : -Math.PI / 4;
+                } else if (this.status === 'dead') {
+                    // Sinking / upside down
+                    this.y += 3;
+                    this.rotation += 0.05;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+                if (this.rotation !== 0) {
+                    ctx.rotate(this.rotation);
+                }
+
+                // If swimming to left, flip horizontal scale so head always points left
+                if (!this.facingRight && this.status !== 'hooked') {
+                    ctx.scale(-1, 1);
+                }
+
+                const w = this.width;
+                const h = this.height;
+
+                // --- 1. FISH BODY DRAWING ---
+                // Tail
+                ctx.save();
+                ctx.translate(-w / 2.3, 0);
+                ctx.rotate(Math.sin(this.tailAngle) * 0.25);
+                ctx.fillStyle = this.colors.fin;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(-25, -20);
+                ctx.quadraticCurveTo(-15, 0, -25, 20);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+
+                // Main Body (Oval/Fish shape)
+                ctx.fillStyle = this.colors.body;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, w / 2.2, h / 2.2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Decorative Stripes
+                ctx.strokeStyle = this.colors.stripe;
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.arc(-w / 6, 0, h / 2.4, -Math.PI / 3, Math.PI / 3);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(w / 8, 0, h / 2.5, -Math.PI / 3, Math.PI / 3);
+                ctx.stroke();
+
+                // Fins
+                ctx.fillStyle = this.colors.fin;
+                // Top Fin
+                ctx.beginPath();
+                ctx.moveTo(-w / 4, -h / 2.1);
+                ctx.quadraticCurveTo(0, -h / 1.3, w / 4, -h / 2.2);
+                ctx.fill();
+
+                // Eye
+                const eyeX = w / 3;
+                const eyeY = -h / 6;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(eyeX, eyeY, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (this.status === 'dead') {
+                    // Dead Eye X
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(eyeX - 4, eyeY - 4);
+                    ctx.lineTo(eyeX + 4, eyeY + 4);
+                    ctx.moveTo(eyeX + 4, eyeY - 4);
+                    ctx.lineTo(eyeX - 4, eyeY + 4);
+                    ctx.stroke();
+                } else {
+                    // Normal Pupil
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath();
+                    ctx.arc(eyeX + 2, eyeY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+
+                // --- 2. ANSWER TEXT BUBBLE / CARD ---
+                // Rendered above fish so it's always easily readable
+                ctx.save();
+                const boxPadding = 10;
+                ctx.font = 'bold 15px "Fredoka", sans-serif';
+
+                // Wrap Text Function for clear reading
+                const words = this.text.split(' ');
+                let lines = [];
+                let currentLine = words[0];
+
+                const maxBoxWidth = Math.max(180, w + 20);
+
+                for (let i = 1; i < words.length; i++) {
+                    const testLine = currentLine + " " + words[i];
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxBoxWidth - boxPadding * 2) {
+                        lines.push(currentLine);
+                        currentLine = words[i];
+                    } else {
+                        currentLine = testLine;
+                    }
+                }
+                lines.push(currentLine);
+
+                const lineHeight = 18;
+                const boxHeight = lines.length * lineHeight + boxPadding * 1.5;
+                const boxWidth = maxBoxWidth;
+
+                const boxX = this.x + (this.width / 2) - (boxWidth / 2);
+                const boxY = this.y - boxHeight - 12;
+
+                // Draw Rounded Container Box for Text
+                ctx.fillStyle = this.status === 'dead' ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+                ctx.strokeStyle = this.status === 'dead' ? '#991b1b' : '#0284c7';
+                ctx.lineWidth = 2.5;
+
+                ctx.beginPath();
+                ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                // Little pointer arrow down to fish
+                ctx.fillStyle = this.status === 'dead' ? 'rgba(239, 68, 68, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2 - 6, boxY + boxHeight);
+                ctx.lineTo(this.x + this.width / 2 + 6, boxY + boxHeight);
+                ctx.lineTo(this.x + this.width / 2, boxY + boxHeight + 6);
+                ctx.closePath();
+                ctx.fill();
+
+                // Text Lines Rendering
+                ctx.fillStyle = this.status === 'dead' ? '#ffffff' : '#0f172a';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                lines.forEach((line, index) => {
+                    ctx.fillText(
+                        line,
+                        boxX + boxWidth / 2,
+                        boxY + boxPadding + (index * lineHeight) + (lineHeight / 2)
+                    );
+                });
+
+                ctx.restore();
+            }
+
+            containsPoint(px, py) {
+                // Generous bounding box for tap/click
+                const margin = 15;
+                return (
+                    px >= this.x - margin &&
+                    px <= this.x + this.width + margin &&
+                    py >= this.y - 40 &&
+                    py <= this.y + this.height + margin
+                );
+            }
+        }
+
+        /* Load Current Question and Spawn 4 Fishes */
+        function loadQuestion(idx) {
+            if (idx >= questionsData.length) {
+                endGame(true);
+                return;
+            }
+
+            const qData = questionsData[idx];
+            document.getElementById('question-text').innerText = qData.q;
+            document.getElementById('question-tracker').innerText = `${idx + 1}/${questionsData.length}`;
+
+            // Prepare choices: 1 correct + 3 wrongs (No A,B,C,D prefix!)
+            let choices = [
+                { text: qData.correct, isCorrect: true },
+                ...qData.wrongs.map(w => ({ text: w, isCorrect: false }))
+            ];
+
+            // Shuffle choices randomly
+            choices.sort(() => Math.random() - 0.5);
+
+            // Create Fish Instances
+            fishes = choices.map((c, i) => new Fish(c.text, c.isCorrect, i));
+            isProcessingClick = false;
+        }
+
+        /* Canvas Event Click / Touch Handler */
+        function handleInteraction(clientX, clientY) {
+            if (isProcessingClick || rod.state !== 'idle') return;
+
+            const rect = canvas.getBoundingClientRect();
+            const clickX = clientX - rect.left;
+            const clickY = clientY - rect.top;
+
+            // Find clicked fish
+            const clickedFish = fishes.find(f => f.status === 'swimming' && f.containsPoint(clickX, clickY));
+
+            if (clickedFish) {
+                isProcessingClick = true;
+                rod.targetX = clickedFish.x + clickedFish.width / 2;
+                rod.targetY = clickedFish.y + clickedFish.height / 2;
+                rod.activeFish = clickedFish;
+                rod.state = 'dropping';
+                
+                // Set rod origin near top above target
+                rod.topX = rod.targetX;
+            }
+        }
+
+        canvas.addEventListener('click', (e) => handleInteraction(e.clientX, e.clientY));
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                handleInteraction(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        /* Update Fishing Rod Logic */
+        function updateRod() {
+            if (rod.state === 'dropping') {
+                // Move hook towards target fish
+                const dy = rod.targetY - rod.hookY;
+                rod.hookX = rod.topX;
+
+                if (dy > rod.speed) {
+                    rod.hookY += rod.speed;
+                } else {
+                    // Hook reached fish!
+                    rod.hookY = rod.targetY;
+                    createSplash(rod.hookX, rod.hookY);
+
+                    const fish = rod.activeFish;
+                    if (fish.isCorrect) {
+                        // CORRECT ANSWER!
+                        fish.status = 'hooked';
+                        rod.state = 'pulling_up';
+                        playSound('correct');
+                        showFeedback(true, "SYABAS! JAWAPAN BETUL");
+                        score += 10;
+                        correctAnswersCount++;
+                        updateStatsUI();
+                    } else {
+                        // WRONG ANSWER!
+                        fish.status = 'dead';
+                        rod.state = 'sinking_dead';
+                        playSound('wrong');
+                        showFeedback(false, "SALAH! CUBA LAGI");
+                        lives--;
+                        updateStatsUI();
+                    }
+                }
+            } else if (rod.state === 'pulling_up') {
+                // Pull hook and correct fish out of water
+                if (rod.hookY > -100) {
+                    rod.hookY -= rod.speed * 1.2;
+                } else {
+                    // Reset rod & transition to next question
+                    rod.state = 'idle';
+                    rod.hookY = 40;
+                    currentQuestionIdx++;
+                    if (lives > 0) {
+                        loadQuestion(currentQuestionIdx);
+                    } else {
+                        endGame(false);
+                    }
+                }
+            } else if (rod.state === 'sinking_dead') {
+                // Return rod to top while dead fish sinks
+                if (rod.hookY > 40) {
+                    rod.hookY -= rod.speed * 1.5;
+                } else {
+                    rod.state = 'idle';
+                    setTimeout(() => {
+                        if (lives <= 0) {
+                            endGame(false);
+                        } else {
+                            currentQuestionIdx++;
+                            loadQuestion(currentQuestionIdx);
+                        }
+                    }, 800);
+                }
+            }
+        }
+
+        /* Show Floating Feedback Card */
+        function showFeedback(isCorrect, message) {
+            const banner = document.getElementById('feedback-banner');
+            const card = document.getElementById('feedback-card');
+            const text = document.getElementById('feedback-text');
+            const icon = document.getElementById('feedback-icon');
+
+            text.innerText = message;
+            if (isCorrect) {
+                card.className = "px-8 py-4 rounded-3xl shadow-2xl border-4 text-2xl md:text-3xl font-extrabold bg-emerald-500 text-white border-emerald-200 flex items-center gap-3";
+                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else {
+                card.className = "px-8 py-4 rounded-3xl shadow-2xl border-4 text-2xl md:text-3xl font-extrabold bg-rose-600 text-white border-rose-200 flex items-center gap-3";
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+            }
+
+            banner.classList.remove('scale-0');
+            banner.classList.add('scale-100');
+
+            setTimeout(() => {
+                banner.classList.remove('scale-100');
+                banner.classList.add('scale-0');
+            }, 1200);
+        }
+
+        /* Update Score and Lives HUD */
+        function updateStatsUI() {
+            document.getElementById('score-display').innerText = score;
+            const livesContainer = document.getElementById('lives-container');
+            livesContainer.innerHTML = '';
+
+            for (let i = 0; i < 3; i++) {
+                if (i < lives) {
+                    livesContainer.innerHTML += `<i class="fa-solid fa-heart animate-bounce" style="animation-delay: ${i * 0.1}s"></i>`;
+                } else {
+                    livesContainer.innerHTML += `<i class="fa-solid fa-heart text-gray-600/60"></i>`;
+                }
+            }
+        }
+
+        /* Render Pond Environment and Elements */
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Water Gradient Background
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#0284c7');  // Sky blue water surface
+            bgGradient.addColorStop(0.4, '#0369a1');
+            bgGradient.addColorStop(1, '#0c4a6e');  // Deep blue bottom
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Underwater Seaweeds
+            ctx.strokeStyle = '#15803d';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            const time = Date.now() * 0.002;
+
+            weeds.forEach(w => {
+                ctx.beginPath();
+                ctx.moveTo(w.x, canvas.height);
+                const sway = Math.sin(time + w.angleOffset) * 20;
+                ctx.quadraticCurveTo(
+                    w.x + sway,
+                    canvas.height - (w.height / 2),
+                    w.x + (sway * 1.5),
+                    canvas.height - w.height
+                );
+                ctx.stroke();
+            });
+
+            // 3. Floating Bubbles
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            bubbles.forEach(b => {
+                b.y -= b.speed;
+                b.x += Math.sin(time + b.wobble) * 0.5;
+                if (b.y < -10) {
+                    b.y = canvas.height + 10;
+                    b.x = Math.random() * canvas.width;
+                }
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 4. Update and Draw Fishes
+            fishes.forEach(fish => {
+                fish.update();
+                fish.draw();
+            });
+
+            // 5. Update and Draw Particles (Splash)
+            particles.forEach((p, idx) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; // Gravity
+                p.alpha -= 0.02;
+
+                if (p.alpha <= 0) {
+                    particles.splice(idx, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // 6. Draw Fishing Rod Line & Hook
+            updateRod();
+
+            if (rod.state !== 'idle' || rod.hookY > 40) {
+                // Fishing Line
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(rod.topX, 0);
+                ctx.lineTo(rod.hookX, rod.hookY);
+                ctx.stroke();
+
+                // Metal Hook
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(rod.hookX - 6, rod.hookY + 6, 6, 0, Math.PI, false);
+                ctx.stroke();
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        /* Game Over & Result Screen */
+        function endGame(completedAll) {
+            playSound('win');
+            const modal = document.getElementById('result-modal');
+            const finalScoreEl = document.getElementById('final-score');
+            const finalCorrectEl = document.getElementById('final-correct');
+            const titleEl = document.getElementById('result-title');
+            const msgEl = document.getElementById('result-message');
+            const starsContainer = document.getElementById('stars-container');
+
+            finalScoreEl.innerText = score;
+            finalCorrectEl.innerText = `${correctAnswersCount} / ${questionsData.length}`;
+
+            let starsCount = 1;
+            if (score >= 80) {
+                starsCount = 3;
+                titleEl.innerText = "🌟 Mukmin Sejati - Bebas Nifaq!";
+                msgEl.innerText = "Sangat Cemerlang! Anda memahami tajuk Nifaq dan menjauhi sifat orang munafik dengan sempurna.";
+            } else if (score >= 50) {
+                starsCount = 2;
+                titleEl.innerText = "👍 Tahniah - Pencapaian Baik!";
+                msgEl.innerText = "Syabas! Anda mempunyai kefahaman yang baik mengenai tajuk Nifaq. Teruskan berusaha!";
+            } else {
+                starsCount = 1;
+                titleEl.innerText = "💪 Usaha Lagi!";
+                msgEl.innerText = "Jangan putus asa! Sila ulang kaji semula tajuk Nifaq dan cuba dapatkan skor tertinggi.";
+            }
+
+            // Render Stars
+            starsContainer.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < starsCount) {
+                    starsContainer.innerHTML += `<i class="fa-solid fa-star animate-bounce" style="animation-delay: ${i * 0.15}s"></i>`;
+                } else {
+                    starsContainer.innerHTML += `<i class="fa-solid fa-star text-gray-400"></i>`;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        /* Restart Game Completely */
+        function restartGame() {
+            document.getElementById('result-modal').classList.add('hidden');
+            currentQuestionIdx = 0;
+            score = 0;
+            lives = 3;
+            correctAnswersCount = 0;
+            updateStatsUI();
+            loadQuestion(0);
+        }
+
+        /* Start Game on Window Load */
+        window.onload = function() {
+            resizeCanvas();
+            loadQuestion(0);
+            render();
+        };
+    </script>
+</body>
+</html>
